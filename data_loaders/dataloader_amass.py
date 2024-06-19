@@ -6,6 +6,7 @@ from data_loaders.motion_representation import *
 import pickle as pkl
 from utils.other_utils import REPR_LIST, REPR_DIM_DICT
 
+from pathlib import Path
 
 
 class DataloaderAMASS(data.Dataset):
@@ -109,8 +110,8 @@ class DataloaderAMASS(data.Dataset):
         seqs_path = sorted(seqs_path)
         # print('reading sequences in %s...' % (dataset_name))
         for path in seqs_path:
-            seq_name = path.split('/')[-2]
-            npy_name = path.split('/')[-1]
+            seq_name = Path(path).parts[-2]
+            npy_name = Path(path).parts[-1]
             path_joints = os.path.join(preprocessed_amass_joints_dir, dataset_name, seq_name, npy_name)
             path_smplx = os.path.join(preprocessed_amass_smpl_dir, dataset_name, seq_name, npy_name)
             seq_joints = np.load(path_joints)  # [seq_len, 25, 3]

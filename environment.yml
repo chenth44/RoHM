@@ -7,72 +7,72 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - _libgcc_mutex=0.1=conda_forge
-  - _openmp_mutex=4.5=1_gnu
-  - blas=1.0=mkl
-  - bzip2=1.0.8=h7f98852_4
-  - ca-certificates=2021.10.8=ha878542_0
-  - colorama=0.4.4=pyh9f0ad1d_0
-  - cudatoolkit=10.2.89=h8f6ccaa_10
-  - cython=0.29.28=py38hfa26641_2
-  - ffmpeg=4.3=hf484d3e_0
-  - freetype=2.10.4=h0708190_1
-  - fvcore=0.1.5.post20210915=py38
-  - gmp=6.2.1=h58526e2_0
-  - gnutls=3.6.13=h85f3911_1
-  - intel-openmp=2022.0.1=h06a4308_3633
-  - iopath=0.1.9=py38
-  - jpeg=9b=h024ee3a_2
-  - lame=3.100=h7f98852_1001
-  - lcms2=2.12=h3be6417_0
-  - ld_impl_linux-64=2.36.1=hea4e1c9_2
-  - libblas=3.9.0=14_linux64_mkl
-  - libcblas=3.9.0=14_linux64_mkl
-  - libffi=3.4.2=h7f98852_5
-  - libgcc-ng=11.2.0=h1d223b6_15
-  - libgomp=11.2.0=h1d223b6_15
-  - libiconv=1.16=h516909a_0
-  - liblapack=3.9.0=14_linux64_mkl
-  - libnsl=2.0.0=h7f98852_0
-  - libpng=1.6.37=h21135ba_2
-  - libstdcxx-ng=11.2.0=he4da1e4_15
-  - libtiff=4.2.0=h85742a9_0
-  - libuuid=2.32.1=h7f98852_1000
-  - libuv=1.43.0=h7f98852_0
-  - libwebp-base=1.2.2=h7f98852_1
-  - libzlib=1.2.11=h166bdaf_1014
-  - lz4-c=1.9.3=h9c3ff4c_1
-  - mkl=2022.0.1=h06a4308_117
-  - ncurses=6.3=h27087fc_1
-  - nettle=3.6=he412f7d_0
-  - ninja=1.10.2=h4bd325d_1
-  - numpy=1.22.3=py38h1d589f8_2
-  - nvidiacub=1.10.0=0
-  - olefile=0.46=pyh9f0ad1d_1
-  - openh264=2.1.1=h780b84a_0
-  - openjpeg=2.4.0=hb52868f_1
-  - openssl=3.0.2=h166bdaf_1
-  - pip=22.0.4=pyhd8ed1ab_0
-  - portalocker=2.4.0=py38h578d9bd_0
-  - python=3.8.13=ha86cf86_0_cpython
-  - python_abi=3.8=2_cp38
-  - pytorch=1.9.1=py3.8_cuda10.2_cudnn7.6.5_0
-  - pyyaml=6.0=py38h0a891b7_4
-  - readline=8.1=h46c0cb4_0
-  - setuptools=69.1.0=pyhd8ed1ab_0
-  - sqlite=3.38.2=h4ff8645_0
-  - tabulate=0.8.9=pyhd8ed1ab_0
-  - termcolor=1.1.0=py_2
-  - tk=8.6.12=h27826a3_0
-  - torchvision=0.10.1=py38_cu102
-  - tqdm=4.64.0=pyhd8ed1ab_0
-  - typing_extensions=4.2.0=pyha770c72_1
-  - wheel=0.37.1=pyhd8ed1ab_0
-  - xz=5.2.5=h516909a_1
-  - yacs=0.1.8=pyhd8ed1ab_0
-  - yaml=0.2.5=h7f98852_2
-  - zlib=1.2.11=h166bdaf_1014
-  - zstd=1.4.9=ha95c52a_0
+  - _libgcc_mutex=0.1
+#  - _openmp_mutex=4.5
+  - blas=1.0
+  - bzip2=1.0.8
+  - ca-certificates=2021.10.8
+  - colorama=0.4.4
+  - cudatoolkit=10.2.89
+  - cython=0.29.28
+  - ffmpeg=4.3
+  - freetype=2.10.4
+  - fvcore=0.1.5.post20210915
+#  - gmp=6.2.1
+#  - gnutls=3.6.13
+#  - intel-openmp=2022.0.1
+  - iopath=0.1.9
+  - jpeg=9b
+  - lame=3.100
+  - lcms2=2.12
+#  - ld_impl_linux-64=2.36.1
+  - libblas=3.9.0
+  - libcblas=3.9.0
+  - libffi=3.4.2
+#  - libgcc-ng=11.2.0
+#  - libgomp=11.2.0
+  - libiconv=1.16
+  - liblapack=3.9.0
+#  - libnsl=2.0.0
+  - libpng=1.6.37
+#  - libstdcxx-ng=11.2.0
+  - libtiff=4.2.0
+#  - libuuid=2.32.1
+  - libuv=1.43.0
+  - libwebp-base=1.2.2
+  - libzlib=1.2.11
+  - lz4-c=1.9.3
+#  - mkl=2022.0.1
+#  - ncurses=6.3
+#  - nettle=3.6
+  - ninja=1.10.2
+  - numpy=1.22.3
+#  - nvidiacub=1.10.0
+  - olefile=0.46
+#  - openh264=2.1.1
+  - openjpeg=2.4.0
+  - openssl=3.0.2
+  - pip=22.0.4
+  - portalocker=2.4.0
+  - python=3.8.13
+  - python_abi=3.8
+  - pytorch=1.9.1
+  - pyyaml=6.0
+#  - readline=8.1
+  - setuptools=69.1.0
+  - sqlite=3.38.2
+  - tabulate=0.8.9
+  - termcolor=1.1.0
+  - tk=8.6.12
+  - torchvision=0.10.1
+  - tqdm=4.64.0
+  - typing_extensions=4.2.0
+  - wheel=0.37.1
+  - xz=5.2.5
+  - yacs=0.1.8
+  - yaml=0.2.5
+  - zlib=1.2.11
+  - zstd=1.4.9
   - pip:
     - absl-py==1.0.0
     - addict==2.4.0
@@ -155,7 +155,7 @@ dependencies:
     - notebook==6.4.11
     - notebook-shim==0.1.0
     - oauthlib==3.2.0
-    - open3d==0.15.2
+    - open3d==0.15.1
     - opencv-python==4.5.5.64
     - packaging==21.3
     - pandas==1.4.2

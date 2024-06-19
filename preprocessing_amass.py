@@ -7,6 +7,7 @@ import glob
 import argparse
 import smplx
 
+from pathlib import Path
 
 ############################
 comp_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -121,9 +122,8 @@ def main(args):
     npz_path_list = glob.glob(os.path.join(args.amass_root, args.dataset_name, '*/*.npz'))
     npz_path_list = sorted(npz_path_list)
     for npz_path in tqdm(npz_path_list):
-        recording_name = npz_path.split('/')[-1][0:-4]
-        subj = npz_path.split('/')[-2]
-        # print(recording_name)
+        recording_name = Path(npz_path).parts[-1][0:-4]
+        subj = Path(npz_path).parts[-2]
         if recording_name == 'neutral_stagei':
             continue
         ######## remove ice skating clips from HDM05: dg/HDM_dg_07-01* is inline skating
