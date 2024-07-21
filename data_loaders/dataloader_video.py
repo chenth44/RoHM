@@ -5,6 +5,7 @@ from data_loaders.motion_representation import *
 import pickle as pkl
 import pandas as pd
 from utils.other_utils import *
+import open3d as o3d
 
 
 
@@ -104,6 +105,10 @@ class DataloaderVideo(data.Dataset):
         self.cam_t = cam2world[:3, 3].reshape([1, 3])
         with open(os.path.join(self.base_dir, 'calibration', 'Color.json'), 'r') as f:
             self.color_cam = json.load(f)
+
+        scene_mesh_path = os.path.join(self.base_dir, 'scenes', scene_name + '.ply')
+        scene_mesh = o3d.io.read_triangle_mesh(scene_mesh_path)
+        self.scene_vertices = torch.from_numpy(np.asarray(scene_mesh.vertices)).float().to(self.device)
 
         frame_list = os.listdir(fitting_dir)
         frame_list.sort()

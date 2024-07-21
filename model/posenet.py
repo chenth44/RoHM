@@ -5,7 +5,7 @@ from utils.other_utils import *
 import smplx
 from data_loaders.motion_representation import recover_from_repr_smpl
 from model.heads import *
-
+from smplx.utils import SMPLXOutput
 
 
 class PoseNet(nn.Module):
@@ -316,6 +316,86 @@ class PoseNet(nn.Module):
 
         return grad_joints_2d
 
+    def guide_collision_with_smpl(self, batch, out, denoise_t, compute_grad='x_t'):
+        # model_output: [bs, pose_feat_dim, 1, T]
+        with torch.enable_grad():
+            if compute_grad == 'x_t':
+                x_t = batch['x_t']
+            elif compute_grad == 'x_0':
+                x_t = out['pred_xstart']
+            x_t = x_t.detach().requires_grad_()  # [bs, body_feat_dim, 1, T]
+
+            ########## obtain global joint coordinate
+            full_repr_rec = x_t[:, :, 0].permute(0, 2, 1)  # [bs, T, body_feat_dim]
+            full_repr_rec = full_repr_rec * torch.from_numpy(self.dataset.Std).to(self.device) + torch.from_numpy(
+                self.dataset.Mean).to(self.device)
+
+            # reconstruct smpl params
+            cur_total_dim = 0
+            repr_dict_rec = {}
+            for repr_name in REPR_LIST:
+                repr_dict_rec[repr_name] = full_repr_rec[..., cur_total_dim:(cur_total_dim + REPR_DIM_DICT[repr_name])]
+                cur_total_dim += REPR_DIM_DICT[repr_name]
+
+            smpl_output = recover_from_repr_smpl(repr_dict_rec, recover_mode='smplx_params',
+                                                             smplx_model=self.smplx_model, return_full_output=True)
+            bs = x_t.shape[0]
+            clip_len = x_t.shape[-1]
+            grad_collision = torch.zeros_like(x_t).to(self.device)
+            smpl_output_dict = {}
+            for key in smpl_output.keys():
+                if smpl_output[key] is not None:
+                    new_shape = (bs, clip_len) + smpl_output[key].shape[1:]
+                    smpl_output_dict[key] = smpl_output[key].reshape(new_shape)
+                else:
+                    smpl_output_dict[key] = None
+            collision_losses = []
+            for i in range(clip_len):
+                collision_loss_per_frame = torch.tensor(0.0).to(self.device)
+                for j in range(bs):
+                    cur_smpl_output = SMPLXOutput()
+                    for key in smpl_output_dict.keys():
+                        if smpl_output_dict[key] is not None:
+                            setattr(cur_smpl_output, key, smpl_output_dict[key][j, i].unsqueeze(0))
+                    transf_mat = batch['transf_matrix'][j]
+                    transf_mat_inv = torch.inverse(transf_mat)
+                    # import open3d as o3d
+                    # scene_verts_transformed = self.dataset.scene_vertices @ batch['transf_matrix'][j][:3, :3].T + \
+                    #                           batch['transf_matrix'][j][:3, 3]
+                    # pcd_scene = o3d.geometry.PointCloud(
+                    #     points=o3d.utility.Vector3dVector(scene_verts_transformed.cpu().numpy()))
+                    # blue_color = np.array([[0, 0, 1] for _ in range(self.dataset.scene_vertices.shape[0])])
+                    # pcd_scene.colors = o3d.utility.Vector3dVector(blue_color)
+                    # vertices = cur_smpl_output.vertices[0].detach().cpu().numpy()
+                    # pcd_char = o3d.geometry.PointCloud(
+                    #     points=o3d.utility.Vector3dVector(vertices))
+                    # o3d.visualization.draw_geometries([pcd_scene, pcd_char])
+                    bb_min = cur_smpl_output.vertices.min(dim=1)[0].reshape(1, 3).detach() @ transf_mat_inv[:3, :3].T + transf_mat_inv[:3, 3]
+                    bb_max = cur_smpl_output.vertices.max(dim=1)[0].reshape(1, 3).detach() @ transf_mat_inv[:3, :3].T + transf_mat_inv[:3, 3]
+                    inds = (self.dataset.scene_vertices >= bb_min).all(-1) & (self.dataset.scene_vertices <= bb_max).all(-1)
+                    if inds.any():
+                        if inds.sum() <= 500:
+                            collision_loss_per_frame += self.smplx_model.coap.collision_loss(
+                                self.dataset.scene_vertices[inds].unsqueeze(0) @ transf_mat[:3, :3].T + transf_mat[:3, 3],
+                                cur_smpl_output, ret_collision_mask=None).sum()
+                        else:
+                            for k in range(inds.sum() // 500 + 1):
+                                cur_inds = inds & (torch.arange(inds.shape[0]).to(inds.device) >= k * 500) & (torch.arange(inds.shape[0]).to(inds.device) < (k + 1) * 500)
+                                if cur_inds.any():
+                                    collision_loss_per_frame += self.smplx_model.coap.collision_loss(
+                                        self.dataset.scene_vertices[cur_inds].unsqueeze(0) @ transf_mat[:3, :3].T + transf_mat[:3, 3],
+                                        cur_smpl_output, ret_collision_mask=None).sum()
+                collision_loss_per_frame /= bs
+                collision_losses.append(collision_loss_per_frame)
+            collision_losses = torch.stack(collision_losses)
+            if (collision_losses > 0).any():
+                collision_losses = collision_losses.mean()
+                grad_collision = torch.autograd.grad([-collision_losses], [x_t])[0]
+                grad_collision[:, 0:self.dataset.traj_feat_dim, :, :] = 0
+                grad_collision[:, -4:, :, :] = 0
+            x_t.detach()
+
+        return grad_collision
 
 
 

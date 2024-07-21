@@ -16,6 +16,7 @@ from utils.model_util import create_gaussian_diffusion
 from utils.vis_util import *
 import smplx
 
+from coap import attach_coap
 
 arg_formatter = configargparse.ArgumentDefaultsHelpFormatter
 cfg_parser = configargparse.YAMLConfigFileParser
@@ -119,6 +120,9 @@ def main(args):
     print('[INFO] loaded PoseNet checkpoint path:', args.model_path_posenet)
     weights = torch.load(args.model_path_posenet, map_location=lambda storage, loc: storage)
     model_posenet.load_state_dict(weights)
+
+    attach_coap(model_posenet.smplx_model, device=dist_util.dev())
+
     model_posenet.eval()
 
     diffusion_posenet_eval = create_gaussian_diffusion(args, gd=gaussian_diffusion_posenet,

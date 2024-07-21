@@ -3,7 +3,7 @@ body_model_path: 'data/body_models/smplx_model'
 dataset: 'prox'
 dataset_root: 'datasets/PROX'
 saved_data_dir: 'test_results/results_prox_rgbd/test_prox_grad_True_iter_2_iter2trajnoisy_False_iter2posenoisy_False_earlystop_True_seed_0'
-recording_name: 'all'
+recording_name: 'N0Sofa_00034_02'
 
 device: 0
 

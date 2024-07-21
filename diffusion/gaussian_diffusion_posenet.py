@@ -469,6 +469,10 @@ class GaussianDiffusionPoseNet:
             if t[0] <= 100:  # todo
                 grad_skating = model.guide_skating_with_smpl(batch, out, t, compute_grad='x_0')  # [bs, 263]
                 out["mean"] = out["mean"].float() + grad_weight_skating * out['variance'] * grad_skating.float()
+            grad_weight_collision = 5e4
+            if t[0] <= 50:  # todo
+                grad_collision = model.guide_collision_with_smpl(batch, out, t, compute_grad='x_0')  # [bs, 263]
+                out["mean"] = out["mean"].float() + grad_weight_collision * out['variance'] * grad_collision.float()
 
         elif grad_type == 'amass':
             grad_weight_skating = 3e6  # todo 5e4 for 50

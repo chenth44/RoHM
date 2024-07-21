@@ -124,6 +124,10 @@ if __name__ == "__main__":
             scene_name = recording_name.split("_")[0]
             with open(os.path.join(cam2world_dir, scene_name + '.json'), 'r') as f:
                 cam2world = np.array(json.load(f))
+            scene_mesh_path = os.path.join(args.dataset_root, 'scenes', scene_name + '.ply')
+            scene_mesh = o3d.io.read_triangle_mesh(scene_mesh_path)
+            # scene_mesh.transform(np.linalg.inv(cam2world))
+            vis.add_geometry(scene_mesh)
         elif args.dataset == 'egobody':
             view = view_dict[recording_name]
             body_idx = idx_dict[recording_name]
