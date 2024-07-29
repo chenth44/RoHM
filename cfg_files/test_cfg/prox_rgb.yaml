@@ -19,9 +19,9 @@ model_path_trajnet: 'data/checkpoints/trajnet_checkpoint/model000450000.pt'
 model_path_trajnet_control: 'data/checkpoints/trajnet_control_checkpoint/model000400000.pt'
 model_path_posenet: 'data/checkpoints/posenet_checkpoint/model000200000.pt'
 
-batch_size: 20
+batch_size: 8
 cond_fn_with_grad: True
-save_root: 'test_results/results_prox_rgb'
+save_root: 'test_results/results_prox_rgb_with_collision'
 
 sample_iter: 2
 iter2_cond_noisy_traj: False

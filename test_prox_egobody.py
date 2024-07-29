@@ -16,6 +16,10 @@ from utils.model_util import create_gaussian_diffusion
 from utils.vis_util import *
 import smplx
 
+import yaml
+
+# from coap import attach_coap
+from volSMPL import attach_coap_plus as attach_coap
 
 arg_formatter = configargparse.ArgumentDefaultsHelpFormatter
 cfg_parser = configargparse.YAMLConfigFileParser
@@ -86,7 +90,7 @@ def main(args):
                                         overlap_len=args.window_size,
                                         logdir=log_dir_pose,
                                         device=dist_util.dev())
-    test_pose_dataloader = DataLoader(test_pose_dataset, batch_size=args.batch_size, shuffle=False, num_workers=8, drop_last=False)
+    test_pose_dataloader = DataLoader(test_pose_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0, drop_last=False)
     test_pose_dataloader_iter = iter(test_pose_dataloader)
 
     ################## set up traj data loader
@@ -104,7 +108,7 @@ def main(args):
                                         overlap_len=args.window_size,
                                         logdir=log_dir_traj,
                                         device=dist_util.dev())
-    test_traj_dataloader = DataLoader(test_traj_dataset, batch_size=args.batch_size, shuffle=False, num_workers=8, drop_last=False)
+    test_traj_dataloader = DataLoader(test_traj_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0, drop_last=False)
     test_traj_dataloader_iter = iter(test_traj_dataloader)
 
     print("creating model and diffusion...")
@@ -118,7 +122,18 @@ def main(args):
 
     print('[INFO] loaded PoseNet checkpoint path:', args.model_path_posenet)
     weights = torch.load(args.model_path_posenet, map_location=lambda storage, loc: storage)
-    model_posenet.load_state_dict(weights)
+    # model_posenet.load_state_dict(weights)
+    # load state dict except for smplx_model.left_hand_pose and smplx_model.right_hand_pose
+    model_posenet.load_state_dict({k: v for k, v in weights.items() if 'smplx_model.left_hand_pose' not in k and 'smplx_model.right_hand_pose' not in k}, strict=False)
+
+    coap_config_path = "./data/volSMPL/coap.yml"
+    with open(coap_config_path, 'r') as f:
+        coap_cfg = yaml.safe_load(f).get('coap_cfg', {})
+    coap_ckpt_path = "./data/volSMPL/last.ckpt"
+
+    # attach_coap(model_posenet.smplx_model, device=dist_util.dev())
+    attach_coap(model_posenet.smplx_model, device=dist_util.dev(), coap_cfg=coap_cfg, checkpoint=coap_ckpt_path)
+
     model_posenet.eval()
 
     diffusion_posenet_eval = create_gaussian_diffusion(args, gd=gaussian_diffusion_posenet,
@@ -168,7 +183,8 @@ def main(args):
                                                                device=dist_util.dev())
 
     smplx_neutral = smplx.create(model_path=args.body_model_path, model_type="smplx",
-                                 gender='neutral', flat_hand_mean=True, use_pca=False).to(dist_util.dev())
+                                 gender='neutral', flat_hand_mean=True, use_pca=True,
+                                        num_pca_comps=12, num_betas=10).to(dist_util.dev())
 
     ############# data to save
     rec_ric_data_noisy_list = []

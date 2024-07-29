@@ -329,7 +329,7 @@ def recover_root_rot_pos(data, root_traj_repr='abs', up_axis='y'):
     return r_rot_quat, r_pos
 
 
-def recover_from_repr_smpl(data_dict, recover_mode='joint_abs_traj', smplx_model=None, return_verts=False, return_full_joints=False):
+def recover_from_repr_smpl(data_dict, recover_mode='joint_abs_traj', smplx_model=None, return_verts=False, return_full_joints=False, return_full_output=False):
     '''
     Recover joint/vertices positions from the motion representation
     input:
@@ -383,10 +383,12 @@ def recover_from_repr_smpl(data_dict, recover_mode='joint_abs_traj', smplx_model
                              'jaw_pose': torch.zeros(len(global_orient_aa), 3).to(global_orient_aa.device),
                              'leye_pose': torch.zeros(len(global_orient_aa), 3).to(global_orient_aa.device),
                              'reye_pose': torch.zeros(len(global_orient_aa), 3).to(global_orient_aa.device),
-                             'left_hand_pose': torch.zeros(len(global_orient_aa), 45).to(global_orient_aa.device),
-                             'right_hand_pose': torch.zeros(len(global_orient_aa), 45).to(global_orient_aa.device),
+                             'left_hand_pose': torch.zeros(len(global_orient_aa), 12).to(global_orient_aa.device),
+                             'right_hand_pose': torch.zeros(len(global_orient_aa), 12).to(global_orient_aa.device),
                              'expression': torch.zeros(len(global_orient_aa), 10).to(global_orient_aa.device)}
-        smplx_output = smplx_model(**smplx_params_dict)
+        smplx_output = smplx_model(**smplx_params_dict, return_full_pose=return_full_output)
+        if return_full_output:
+            return smplx_output
         if return_full_joints:
             smplx_joints = smplx_output.joints.reshape(bs, -1, 127, 3)
         else:

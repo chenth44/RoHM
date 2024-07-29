@@ -41,7 +41,8 @@ group.add_argument("--render_save_path", default='render_imgs/render_egobody_rgb
 args = group.parse_args()
 dist_util.setup_dist(args.device)
 smplx_neutral = smplx.create(model_path=args.body_model_path, model_type="smplx",
-                             gender='neutral', flat_hand_mean=True, use_pca=False).to(dist_util.dev())
+                                 gender='neutral', flat_hand_mean=True, use_pca=True,
+                                        num_pca_comps=12, num_betas=10).to(dist_util.dev())
 
 if __name__ == "__main__":
     if args.visualize and args.render:
@@ -124,6 +125,11 @@ if __name__ == "__main__":
             scene_name = recording_name.split("_")[0]
             with open(os.path.join(cam2world_dir, scene_name + '.json'), 'r') as f:
                 cam2world = np.array(json.load(f))
+            scene_mesh_path = os.path.join(args.dataset_root, 'scenes', scene_name + '.ply')
+            scene_mesh = o3d.io.read_triangle_mesh(scene_mesh_path)
+            # scene_mesh.transform(np.linalg.inv(cam2world))
+            if args.visualize:
+                vis.add_geometry(scene_mesh)
         elif args.dataset == 'egobody':
             view = view_dict[recording_name]
             body_idx = idx_dict[recording_name]
@@ -341,7 +347,7 @@ if __name__ == "__main__":
 
                         if args.vis_option == 'mesh':
                             vis.add_geometry(body_mesh_rec)
-                            vis.add_geometry(body_mesh_input)
+                            # vis.add_geometry(body_mesh_input)
                         if args.vis_option == 'skeleton':
                             for arrow in skeleton_rec_list:
                                 vis.add_geometry(arrow)
@@ -353,7 +359,7 @@ if __name__ == "__main__":
                         ctr = vis.get_view_control()
                         cam_param = ctr.convert_to_pinhole_camera_parameters()
                         cam_param = update_cam(cam_param, cam2world)
-                        ctr.convert_from_pinhole_camera_parameters(cam_param)
+                        ctr.convert_from_pinhole_camera_parameters(cam_param, True)
                         vis.poll_events()
                         vis.update_renderer()
                         # time.sleep(0.03)
