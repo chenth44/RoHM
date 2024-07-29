@@ -1,5 +1,5 @@
 body_model_path: 'data/body_models/smplx_model'
-dataset_root: 'datasets/AMASS_smplx_preprocessed'
+dataset_root: 'datasets/AMASS_smplx_preprocessed'  # 'datasets/AMASS_smplx_preprocessed'  /mnt/hdd/diffusion_mocap_datasets/AMASS_smplx_preprocessed
 
 device: 0
 seed: 0
@@ -20,7 +20,7 @@ input_noise: True
 load_noise: True
 load_noise_level: 3
 
-batch_size: 64
+batch_size: 8
 cond_fn_with_grad: True
 infill_traj: True
 traj_mask_ratio: 0.1
